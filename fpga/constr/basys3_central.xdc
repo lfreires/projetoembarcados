@@ -63,24 +63,29 @@ set_property -dict { PACKAGE_PIN W19 IOSTANDARD LVCMOS33 } [get_ports btnL]
 set_property -dict { PACKAGE_PIN T17 IOSTANDARD LVCMOS33 } [get_ports btnR]
 set_property -dict { PACKAGE_PIN U17 IOSTANDARD LVCMOS33 } [get_ports btnD]
 
-## ---------------- Pmod JA : sensores das zonas 1, 2 e 3 ----------------
-## JA1  Z1 reed (porta)        JA2  Z1 TRIG        JA3  Z1 ECHO (divisor 5V->3V3)
-## JA4  Z2 reed (janela)       JA7  Z2 barreira IR
-## JA8  Z3 PIR                 JA9  Z3 TRIG        JA10 Z3 ECHO (divisor 5V->3V3)
-set_property -dict { PACKAGE_PIN J1 IOSTANDARD LVCMOS33 PULLUP true }   [get_ports z1_reed]
+## ---------------- Pmod JA : zonas 1, 2 e 3 ----------------
+## Z1 ambiente 1: PIR + ultrassom | Z2 ambiente 2: reed porta + ultrassom
+## Z3 ambiente 3: reed janela + ultrassom | Z4 quintal: IR FC-51 + ultrassom
+## Reed: contato para o GND, pull-up interno (porta aberta = 1)
+## JA1  Z1 PIR            JA2  Z1 TRIG    JA3  Z1 ECHO (divisor 5V->3V3)
+## JA4  Z2 reed (porta)   JA7  Z2 TRIG    JA8  Z2 ECHO (divisor 5V->3V3)
+##                         JA9  Z3 TRIG    JA10 Z3 ECHO (divisor 5V->3V3)
+set_property -dict { PACKAGE_PIN J1 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z1_pir]
 set_property -dict { PACKAGE_PIN L2 IOSTANDARD LVCMOS33 }               [get_ports z1_trig]
 set_property -dict { PACKAGE_PIN J2 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z1_echo]
 set_property -dict { PACKAGE_PIN G2 IOSTANDARD LVCMOS33 PULLUP true }   [get_ports z2_reed]
-set_property -dict { PACKAGE_PIN H1 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z2_ir]
-set_property -dict { PACKAGE_PIN K2 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z3_pir]
+set_property -dict { PACKAGE_PIN H1 IOSTANDARD LVCMOS33 }               [get_ports z2_trig]
+set_property -dict { PACKAGE_PIN K2 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z2_echo]
 set_property -dict { PACKAGE_PIN H2 IOSTANDARD LVCMOS33 }               [get_ports z3_trig]
 set_property -dict { PACKAGE_PIN G3 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z3_echo]
 
-## ---------------- Pmod JB : zona 4, atuadores e supervisao da ESP ----------------
-## JB1 Z4 barreira IR   JB2 Z4 PIR     JB3 sirene    JB4 estrobo
+## ---------------- Pmod JB : Z3 reed, Z4 IR, atuadores e supervisao da ESP ----------------
+## JB1 Z3 reed          JB2 Z4 IR FC-51 (ativo em 0; alimentar em 3,3 V)
+## JB3 sirene           JB4 estrobo
 ## JB7 nevoa (bomba)    JB8 cerca      JB9 reset ESP (NPN no EN)   JB10 heartbeat
-set_property -dict { PACKAGE_PIN A14 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z4_ir]
-set_property -dict { PACKAGE_PIN A16 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z4_pir]
+## PULLDOWN no IR: fio solto parece deteccao -> dispara e degrada (falha segura)
+set_property -dict { PACKAGE_PIN A14 IOSTANDARD LVCMOS33 PULLUP true }   [get_ports z3_reed]
+set_property -dict { PACKAGE_PIN A16 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z4_ir]
 set_property -dict { PACKAGE_PIN B15 IOSTANDARD LVCMOS33 }               [get_ports sirene]
 set_property -dict { PACKAGE_PIN B16 IOSTANDARD LVCMOS33 }               [get_ports estrobo]
 set_property -dict { PACKAGE_PIN A15 IOSTANDARD LVCMOS33 }               [get_ports nevoa]
@@ -106,6 +111,11 @@ set_property -dict { PACKAGE_PIN J3 IOSTANDARD LVCMOS33 PULLDOWN true } [get_por
 set_property -dict { PACKAGE_PIN L3 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports disarm_req]
 set_property -dict { PACKAGE_PIN M2 IOSTANDARD LVCMOS33 }               [get_ports cmd_ack]
 set_property -dict { PACKAGE_PIN N2 IOSTANDARD LVCMOS33 }               [get_ports cmd_ok]
+
+## ---------------- Pmod JXADC (fileira de baixo) : ultrassom da zona 4 ----------------
+## JXA7 Z4 TRIG   JXA8 Z4 ECHO (divisor 5V->3V3)
+set_property -dict { PACKAGE_PIN K3 IOSTANDARD LVCMOS33 }               [get_ports z4_trig]
+set_property -dict { PACKAGE_PIN M3 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z4_echo]
 
 ## ---------------- Configuracao ----------------
 set_property CONFIG_VOLTAGE 3.3 [current_design]

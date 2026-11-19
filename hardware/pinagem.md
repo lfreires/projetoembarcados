@@ -27,17 +27,17 @@ Referência rápida para a montagem. A fonte oficial é `fpga/constr/basys3_cent
 
 | Pmod | Pino | Sinal | Direção | Observação |
 |---|---|---|---|---|
-| JA1 | J1 | z1_reed | entrada | pull-up interno |
-| JA2 | L2 | z1_trig | saída | HC-SR04 aceita 3,3 V no TRIG |
-| JA3 | J2 | z1_echo | entrada | divisor 1 kΩ / 2 kΩ (5 V para 3,3 V) |
-| JA4 | G2 | z2_reed | entrada | pull-up interno |
-| JA7 | H1 | z2_ir | entrada | |
-| JA8 | K2 | z3_pir | entrada | saída do HC-SR501 já é 3,3 V |
-| JA9 | H2 | z3_trig | saída | |
-| JA10 | G3 | z3_echo | entrada | divisor 1 kΩ / 2 kΩ |
-| JB1 | A14 | z4_ir | entrada | |
-| JB2 | A16 | z4_pir | entrada | |
-| JB3 | B15 | sirene | saída | para o canal de potência 1 |
+| JA1 | J1 | z1_pir | entrada | Z1 ambiente 1: PIR (saída do HC-SR501 já é 3,3 V), pull-down |
+| JA2 | L2 | z1_trig | saída | Z1 ultrassom (HC-SR04 aceita 3,3 V no TRIG) |
+| JA3 | J2 | z1_echo | entrada | Z1 ultrassom, divisor 1 kΩ / 2 kΩ (5 V para 3,3 V) |
+| JA4 | G2 | z2_reed | entrada | Z2 ambiente 2: reed da porta, pull-up interno |
+| JA7 | H1 | z2_trig | saída | Z2 ultrassom |
+| JA8 | K2 | z2_echo | entrada | Z2 ultrassom, divisor 1 kΩ / 2 kΩ |
+| JA9 | H2 | z3_trig | saída | Z3 ultrassom |
+| JA10 | G3 | z3_echo | entrada | Z3 ultrassom, divisor 1 kΩ / 2 kΩ |
+| JB1 | A14 | z3_reed | entrada | Z3 ambiente 3: reed da janela, pull-up interno |
+| JB2 | A16 | z4_ir | entrada | Z4 quintal: IR FC-51 alimentado em 3,3 V, ativo em 0, pull-down |
+| JB3 | B15 | sirene | saída | LED de alarme (10 W / 5 W) no canal de potência 1: pisca ~2,4 Hz no disparo, ~1,2 Hz no pré-alarme |
 | JB4 | B16 | estrobo | saída | habilita o 555 |
 | JB7 | A15 | nevoa | saída | canal de potência 3 (bomba) |
 | JB8 | A17 | cerca | saída | relé isolado |
@@ -52,6 +52,8 @@ Referência rápida para a montagem. A fonte oficial é `fpga/constr/basys3_cent
 | JXA2 | L3 | disarm_req | entrada | pull-down |
 | JXA3 | M2 | cmd_ack | saída | |
 | JXA4 | N2 | cmd_ok | saída | |
+| JXA7 | K3 | z4_trig | saída | Z4 ultrassom |
+| JXA8 | M3 | z4_echo | entrada | Z4 ultrassom, divisor 1 kΩ / 2 kΩ |
 
 Os pinos 5 e 11 de cada Pmod são GND e os pinos 6 e 12 são 3,3 V. O arquivo completo é `fpga/constr/basys3_central.xdc`.
 

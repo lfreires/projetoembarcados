@@ -43,7 +43,7 @@ Este guia permite reproduzir o projeto do zero. Custo de nuvem: R$ 0.
 3. Reed: um terminal no pino do FPGA, o outro no GND. O pull-up é interno.
 4. Alimentar os sensores com 5 V do regulador. **Unir os GNDs** da fonte, do FPGA e da ESP32.
 5. Um cabo UTP por zona, etiquetado nas duas pontas (Z1 a Z4).
-6. Conferir a polaridade da barreira IR com o multímetro: se a saída fica em nível alto com o feixe livre, mudar `IR_ATV` para 0 em `fpga/src/sensores.vhd` (no Block Design, duplo clique no bloco `sensores_0`).
+6. O IR FC-51 vai alimentado em 3,3 V (pino 6 do Pmod) e a saída dele vai a 0 quando detecta (`IR_ATV = 0` em `fpga/src/sensores.vhd`). Se o de vocês funcionar ao contrário, mude `IR_ATV` para 1 (no Block Design, duplo clique no bloco `sensores_0`).
 7. Com o cômodo vazio, apertar **BTNR** para calibrar a distância de referência dos ultrassônicos.
 
 ## Parte 4. Estágio de potência

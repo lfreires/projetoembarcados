@@ -24,7 +24,8 @@ entity top_central is
   generic (
     CLK_HZ    : positive := 100000000;   -- sem Clocking Wizard: 100 MHz direto
     BIT_SEL   : natural  := 18;          -- bits do contador para o display
-    BIT_PISCA : natural  := 25           -- bit que pisca (~1,5 Hz)
+    BIT_PISCA : natural  := 25;          -- pisca lento (~1,5 Hz): pre-alarme e LED15
+    BIT_RAPIDO: natural  := 24           -- pisca rapido (~3 Hz): LED de alarme no disparo
   );
   port (
     clk        : in  std_logic;
@@ -39,16 +40,18 @@ entity top_central is
     dp         : out std_logic;
     an         : out std_logic_vector(3 downto 0);
     -- sensores
-    z1_reed    : in  std_logic;
+    z1_pir    : in  std_logic;
     z1_trig    : out std_logic;
     z1_echo    : in  std_logic;
     z2_reed    : in  std_logic;
-    z2_ir      : in  std_logic;
-    z3_pir     : in  std_logic;
+    z2_trig    : out std_logic;
+    z2_echo    : in  std_logic;
+    z3_reed     : in  std_logic;
     z3_trig    : out std_logic;
     z3_echo    : in  std_logic;
     z4_ir      : in  std_logic;
-    z4_pir     : in  std_logic;
+    z4_trig    : out std_logic;
+    z4_echo    : in  std_logic;
     -- atuadores
     sirene     : out std_logic;
     estrobo    : out std_logic;
@@ -74,6 +77,7 @@ architecture rtl of top_central is
   signal contador : unsigned(26 downto 0) := (others => '0');
   signal sel_disp : std_logic_vector(1 downto 0);
   signal pisca    : std_logic;
+  signal rapido   : std_logic;
 
   signal p_armar, p_desarm, p_rec, p_calib : std_logic;
   signal r, u, f : std_logic_vector(3 downto 0);
@@ -107,6 +111,7 @@ begin
   end process;
   sel_disp <= std_logic_vector(contador(BIT_SEL downto BIT_SEL - 1));
   pisca    <= contador(BIT_PISCA);
+  rapido   <= contador(BIT_RAPIDO);
 
   u_btn : entity work.botoes
     generic map (CLK_HZ => CLK_HZ)
@@ -117,10 +122,10 @@ begin
   u_sens : entity work.sensores
     generic map (CLK_HZ => CLK_HZ)
     port map (clk => clk, rst => rst,
-              z1_reed => z1_reed, z1_echo => z1_echo, z1_trig => z1_trig,
-              z2_reed => z2_reed, z2_ir => z2_ir,
-              z3_pir => z3_pir, z3_echo => z3_echo, z3_trig => z3_trig,
-              z4_ir => z4_ir, z4_pir => z4_pir,
+              z1_pir => z1_pir, z1_echo => z1_echo, z1_trig => z1_trig,
+              z2_reed => z2_reed, z2_echo => z2_echo, z2_trig => z2_trig,
+              z3_reed => z3_reed, z3_echo => z3_echo, z3_trig => z3_trig,
+              z4_ir => z4_ir, z4_echo => z4_echo, z4_trig => z4_trig,
               calibra => p_calib,
               sel_teste => sw_s(7 downto 4), forca_r => sw_s(8), forca_u => sw_s(9), inj_f => sw_s(10),
               r1 => r(0), u1 => u(0), f1 => f(0),
@@ -187,9 +192,9 @@ begin
               rest_c => rest_c, rest_d => rest_d, rest_u => rest_u,
               seg => seg, dp => dp, an => an);
 
-  -- sirene: continua no disparo, bip no pre-alarme
+  -- saida "sirene" = LED de alarme: pisca rapido no disparo, lento no pre-alarme
   -- (no Block Design: Utility Vector Logic AND + OR)
-  sirene   <= disparo or (pre_alarme and pisca);
+  sirene   <= (disparo and rapido) or (pre_alarme and pisca);
   modo_deg <= modo_deg_i;
   cmd_ack  <= cmd_ack_i;
   cmd_ok   <= cmd_res;

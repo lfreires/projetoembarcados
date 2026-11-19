@@ -1,13 +1,13 @@
 -- tb_top.vhd
 -- Testbench de integracao: simula a central inteira (top_central) com
--- modelos simples dos dois HC-SR04 e da ESP32 (heartbeat, ACK dos nibbles
+-- modelos simples dos quatro HC-SR04 e da ESP32 (heartbeat, ACK dos nibbles
 -- e linhas de comando). Clock de 1 MHz para a simulacao andar rapido.
 --
 -- Cenarios:
 --   A. arme remoto pela ESP32 (ARM_REQ / CMD_ACK / CMD_OK)
---   B. zona 1: reed + ultrassom confirmam dentro de Tcorr -> alarme normal
+--   B. zona 1: PIR + ultrassom confirmam dentro de Tcorr -> alarme normal
 --   C. desarme remoto
---   D. zona 2: so a barreira IR -> alarme imediato e DEG depois de Tcorr
+--   D. zona 2: so o ultrassom 2 -> alarme imediato e DEG depois de Tcorr
 --   E. ESP32 travada: FPGA reseta a ESP e a central continua em disparo;
 --      pedido remoto com a ESP "morta" e ignorado; desarme local funciona
 --
@@ -29,11 +29,14 @@ architecture sim of tb_top is
   signal dp  : std_logic;
   signal an  : std_logic_vector(3 downto 0);
 
-  signal z1_reed, z2_reed, z2_ir, z3_pir, z4_ir, z4_pir : std_logic := '0';
-  signal z1_trig, z3_trig : std_logic;
-  signal z1_echo, z3_echo : std_logic := '0';
+  signal z1_pir, z2_reed, z3_reed : std_logic := '0';
+  signal z4_ir : std_logic := '1';     -- FC-51 em repouso fica em '1'
+  signal z1_trig, z2_trig, z3_trig, z4_trig : std_logic;
+  signal z1_echo, z2_echo, z3_echo, z4_echo : std_logic := '0';
   signal larg1 : time := 1200 us;      -- ~20 cm
+  signal larg2 : time := 1500 us;      -- ~26 cm
   signal larg3 : time := 1800 us;      -- ~31 cm
+  signal larg4 : time := 2100 us;      -- ~36 cm
 
   signal sirene, estrobo, nevoa, cerca : std_logic;
   signal esp_rst, esp_sof, esp_req, modo_deg, cmd_ack, cmd_ok : std_logic;
@@ -51,13 +54,13 @@ begin
   clk <= not clk after T / 2 when not fim else '0';
 
   dut : entity work.top_central
-    generic map (CLK_HZ => 1000000, BIT_SEL => 4, BIT_PISCA => 12)
+    generic map (CLK_HZ => 1000000, BIT_SEL => 4, BIT_PISCA => 12, BIT_RAPIDO => 11)
     port map (clk => clk, btnC => btnC, btnU => btnU, btnD => btnD, btnL => btnL, btnR => btnR,
               sw => sw, led => led, seg => seg, dp => dp, an => an,
-              z1_reed => z1_reed, z1_trig => z1_trig, z1_echo => z1_echo,
-              z2_reed => z2_reed, z2_ir => z2_ir,
-              z3_pir => z3_pir, z3_trig => z3_trig, z3_echo => z3_echo,
-              z4_ir => z4_ir, z4_pir => z4_pir,
+              z1_pir => z1_pir, z1_trig => z1_trig, z1_echo => z1_echo,
+              z2_reed => z2_reed, z2_trig => z2_trig, z2_echo => z2_echo,
+              z3_reed => z3_reed, z3_trig => z3_trig, z3_echo => z3_echo,
+              z4_ir => z4_ir, z4_trig => z4_trig, z4_echo => z4_echo,
               sirene => sirene, estrobo => estrobo, nevoa => nevoa, cerca => cerca,
               esp_rst => esp_rst, esp_hb => esp_hb, esp_d => esp_d, esp_sof => esp_sof,
               esp_req => esp_req, esp_ack => esp_ack, modo_deg => modo_deg,
@@ -72,6 +75,24 @@ begin
     z1_echo <= '1';
     wait for larg1;
     z1_echo <= '0';
+  end process;
+
+  hc2 : process
+  begin
+    wait until falling_edge(z2_trig);
+    wait for 400 us;
+    z2_echo <= '1';
+    wait for larg2;
+    z2_echo <= '0';
+  end process;
+
+  hc4 : process
+  begin
+    wait until falling_edge(z4_trig);
+    wait for 400 us;
+    z4_echo <= '1';
+    wait for larg4;
+    z4_echo <= '0';
   end process;
 
   hc3 : process
@@ -153,11 +174,11 @@ begin
     comando(arm_req, '1', "A arme remoto");
     assert led(8) = '1' report "A: nao armou" severity error;
 
-    -- B. zona 1: porta abre e a distancia muda
-    z1_reed <= '1';
+    -- B. zona 1: PIR detecta e a distancia muda
+    z1_pir <= '1';
     larg1   <= 600 us;
-    wait for 30 ms;
-    assert sirene = '1' and estrobo = '1' and cerca = '1' and nevoa = '1'
+    wait for 80 ms;                     -- filtro do PIR = 50 ms
+    assert estrobo = '1' and estrobo = '1' and cerca = '1' and nevoa = '1'
       report "B: saidas nao acionaram" severity error;
     assert led(0) = '1' and led(4) = '0' report "B: AL_Z1 = 1 e DEG_Z1 = 0" severity error;
     wait for 700 ms;
@@ -165,20 +186,25 @@ begin
     assert quadro(2) = "0100" report "B: quadro Z1 deveria ser AL_NORMAL" severity error;
     assert quadro(3) = "0011" report "B: quadro Z1 evidencias R e U" severity error;
     assert quadro(1)(3 downto 2) = "11" report "B: quadro central em DISPARO" severity error;
+    -- o LED de alarme (saida sirene) tem que piscar no disparo
+    wait until sirene = '1' for 10 ms;
+    assert sirene = '1' report "B: LED de alarme nao acendeu" severity error;
+    wait until sirene = '0' for 10 ms;
+    assert sirene = '0' report "B: LED de alarme nao pisca" severity error;
     report "B alarme confirmado conferido";
 
     -- C. desarme remoto
     comando(disarm_req, '1', "C desarme remoto");
-    assert sirene = '0' and led(8) = '0' report "C: nao desarmou" severity error;
-    z1_reed <= '0';
+    assert estrobo = '0' and led(8) = '0' report "C: nao desarmou" severity error;
+    z1_pir <= '0';
     larg1   <= 1200 us;
     wait for 400 ms;
 
-    -- D. zona 2: so a barreira IR
+    -- D. zona 2: so o ultrassom 2 (distancia muda, janela continua fechada)
     comando(arm_req, '1', "D arme remoto");
-    z2_ir <= '1';
-    wait for 30 ms;
-    assert sirene = '1' and led(1) = '1' and led(5) = '0'
+    larg2 <= 2600 us;
+    wait for 250 ms;                    -- 3 medidas seguidas fora da faixa
+    assert estrobo = '1' and led(1) = '1' and led(5) = '0'
       report "D: alarme imediato sem DEG" severity error;
     wait for 600 ms;
     assert led(5) = '1' and modo_deg = '1' report "D: deveria degradar apos Tcorr" severity error;
@@ -192,16 +218,16 @@ begin
     wait for 5300 ms;
     assert viu_reset_esp report "E: FPGA nao resetou a ESP" severity error;
     assert led(12) = '0' report "E: ESP deveria constar como fora" severity error;
-    assert sirene = '1' report "E: central parou sem a ESP" severity error;
+    assert estrobo = '1' report "E: central parou sem a ESP" severity error;
     disarm_req <= '1';                  -- pedido remoto com a ESP morta
     wait for 100 ms;
-    assert sirene = '1' and cmd_ack = '0' report "E: aceitou comando indevido" severity error;
+    assert estrobo = '1' and cmd_ack = '0' report "E: aceitou comando indevido" severity error;
     disarm_req <= '0';
     btnD <= '1';                        -- desarme local continua valendo
     wait for 40 ms;
     btnD <= '0';
     wait for 5 ms;
-    assert sirene = '0' and led(8) = '0' report "E: desarme local falhou" severity error;
+    assert estrobo = '0' and led(8) = '0' report "E: desarme local falhou" severity error;
     report "E watchdog externo e operacao local conferidos";
 
     report "TB_TOP OK";

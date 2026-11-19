@@ -2,40 +2,50 @@
 -- Frente de sensores das 4 zonas: sincroniza, filtra e entrega para cada
 -- MEF de zona as tres entradas qualificadas R, U e F.
 --
---   Zona   sensor A ("R")        sensor B ("U")
---   Z1     reed (porta)          ultrassonico HC-SR04
---   Z2     reed (janela)         barreira IR
---   Z3     PIR                   ultrassonico HC-SR04
---   Z4     barreira IR           PIR
+-- Kit do grupo: 4 ultrassonicos HC-SR04, 2 reed, 1 PIR e 1 IR de obstaculo
+-- (FC-51). Cada zona tem um ultrassonico e um sensor de outro tipo:
+--
+--   Zona   local na maquete   sensor A ("R")             sensor B ("U")
+--   Z1     ambiente 1         PIR                        ultrassonico 1 (janela)
+--   Z2     ambiente 2         reed da porta              ultrassonico 2 (janela)
+--   Z3     ambiente 3         reed da janela             ultrassonico 3 (janela)
+--   Z4     quintal            IR FC-51 (cercadinho)      ultrassonico 4
+--
+-- F de cada zona = ultrassonico da zona sem eco valido (FALHA_N medidas).
+-- Os 4 ultrassonicos disparam defasados de 1/4 de periodo (15 ms) para que o
+-- eco de um nao seja lido pelo outro.
 --
 -- Injecao de falhas (modo TESTE): quando a zona esta selecionada em
 -- sel_teste, as leituras reais sao trocadas pelas chaves forca_r / forca_u
--- e a falha passa a ser a da chave inj_f (a leitura real fica de fora). As chaves chegam aqui
--- ja sincronizadas pelo bloco chaves.vhd.
+-- e a falha passa a ser a da chave inj_f (a leitura real fica de fora). As
+-- chaves chegam aqui ja sincronizadas pelo bloco chaves.vhd.
 library ieee;
 use ieee.std_logic_1164.all;
 
 entity sensores is
   generic (
-    CLK_HZ   : positive := 10000000;
-    REED_ATV : integer range 0 to 1 := 1;   -- reed com pull-up: aberto = '1'
-    IR_ATV   : integer range 0 to 1 := 1;   -- feixe cortado = '1' (ver modulo)
-    PIR_ATV  : integer range 0 to 1 := 1
+    CLK_HZ     : positive := 10000000;
+    PERIODO_US : positive := 60000;                -- periodo de cada ultrassonico
+    REED_ATV   : integer range 0 to 1 := 1;   -- reed com pull-up: aberto = '1'
+    IR_ATV     : integer range 0 to 1 := 0;   -- FC-51: saida vai a '0' ao detectar
+    PIR_ATV    : integer range 0 to 1 := 1
   );
   port (
     clk       : in  std_logic;
     rst       : in  std_logic;
     -- pinos dos sensores
-    z1_reed   : in  std_logic;
+    z1_pir    : in  std_logic;
     z1_echo   : in  std_logic;
     z1_trig   : out std_logic;
     z2_reed   : in  std_logic;
-    z2_ir     : in  std_logic;
-    z3_pir    : in  std_logic;
+    z2_echo   : in  std_logic;
+    z2_trig   : out std_logic;
+    z3_reed   : in  std_logic;
     z3_echo   : in  std_logic;
     z3_trig   : out std_logic;
     z4_ir     : in  std_logic;
-    z4_pir    : in  std_logic;
+    z4_echo   : in  std_logic;
+    z4_trig   : out std_logic;
     -- calibracao do d0 dos ultrassonicos
     calibra   : in  std_logic;
     -- injecao de falhas
@@ -57,54 +67,55 @@ architecture rtl of sensores is
   constant N_REED : positive := CLK_HZ / 50;    -- 20 ms
   constant N_IR   : positive := CLK_HZ / 100;   -- 10 ms
   constant N_PIR  : positive := CLK_HZ / 20;    -- 50 ms
+  constant FASE   : natural  := PERIODO_US / 4; -- 15 ms entre os disparos
 
   signal rq, uq, fq : std_logic_vector(3 downto 0);   -- leituras reais
   signal ro, uo, fo : std_logic_vector(3 downto 0);   -- depois do teste
 begin
 
-  -- ---------------- Zona 1: reed + ultrassom ----------------
+  -- ---------------- Zona 1: PIR + ultrassom 1 ----------------
   z1a : entity work.sinc_debounce
-    generic map (N_CICLOS => N_REED, ATIVO => REED_ATV)
-    port map (clk => clk, rst => rst, d => z1_reed, q => rq(0));
+    generic map (N_CICLOS => N_PIR, ATIVO => PIR_ATV)
+    port map (clk => clk, rst => rst, d => z1_pir, q => rq(0));
 
   z1b : entity work.ultrassom
-    generic map (CLK_HZ => CLK_HZ)
+    generic map (CLK_HZ => CLK_HZ, PERIODO_US => PERIODO_US, FASE_US => 0)
     port map (clk => clk, rst => rst, echo => z1_echo, calibra => calibra,
               trig => z1_trig, alterado => uq(0), falha => fq(0),
               dist_us => dist1_us);
 
-  -- ---------------- Zona 2: reed + barreira IR ----------------
+  -- ---------------- Zona 2: reed da porta + ultrassom 2 ----------------
   z2a : entity work.sinc_debounce
     generic map (N_CICLOS => N_REED, ATIVO => REED_ATV)
     port map (clk => clk, rst => rst, d => z2_reed, q => rq(1));
 
-  z2b : entity work.sinc_debounce
-    generic map (N_CICLOS => N_IR, ATIVO => IR_ATV)
-    port map (clk => clk, rst => rst, d => z2_ir, q => uq(1));
+  z2b : entity work.ultrassom
+    generic map (CLK_HZ => CLK_HZ, PERIODO_US => PERIODO_US, FASE_US => FASE)
+    port map (clk => clk, rst => rst, echo => z2_echo, calibra => calibra,
+              trig => z2_trig, alterado => uq(1), falha => fq(1),
+              dist_us => open);
 
-  fq(1) <= '0';
-
-  -- ---------------- Zona 3: PIR + ultrassom ----------------
+  -- ---------------- Zona 3: reed da janela + ultrassom 3 ----------------
   z3a : entity work.sinc_debounce
-    generic map (N_CICLOS => N_PIR, ATIVO => PIR_ATV)
-    port map (clk => clk, rst => rst, d => z3_pir, q => rq(2));
+    generic map (N_CICLOS => N_REED, ATIVO => REED_ATV)
+    port map (clk => clk, rst => rst, d => z3_reed, q => rq(2));
 
   z3b : entity work.ultrassom
-    generic map (CLK_HZ => CLK_HZ)
+    generic map (CLK_HZ => CLK_HZ, PERIODO_US => PERIODO_US, FASE_US => 2 * FASE)
     port map (clk => clk, rst => rst, echo => z3_echo, calibra => calibra,
               trig => z3_trig, alterado => uq(2), falha => fq(2),
               dist_us => open);
 
-  -- ---------------- Zona 4: barreira IR + PIR ----------------
+  -- ---------------- Zona 4: IR FC-51 + ultrassom 4 ----------------
   z4a : entity work.sinc_debounce
     generic map (N_CICLOS => N_IR, ATIVO => IR_ATV)
     port map (clk => clk, rst => rst, d => z4_ir, q => rq(3));
 
-  z4b : entity work.sinc_debounce
-    generic map (N_CICLOS => N_PIR, ATIVO => PIR_ATV)
-    port map (clk => clk, rst => rst, d => z4_pir, q => uq(3));
-
-  fq(3) <= '0';
+  z4b : entity work.ultrassom
+    generic map (CLK_HZ => CLK_HZ, PERIODO_US => PERIODO_US, FASE_US => 3 * FASE)
+    port map (clk => clk, rst => rst, echo => z4_echo, calibra => calibra,
+              trig => z4_trig, alterado => uq(3), falha => fq(3),
+              dist_us => open);
 
   -- ---------------- injecao de falhas ----------------
   gen_teste : for i in 0 to 3 generate

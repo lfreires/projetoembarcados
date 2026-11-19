@@ -9,6 +9,9 @@
 --  * falha = '1' quando FALHA_N amostras seguidas nao tem eco valido
 --    (sensor desconectado, sem alimentacao ou eco preso)
 --
+-- Com varios sensores, FASE_US defasa o disparo de cada um para que o eco
+-- de um nao seja lido pelo outro.
+--
 -- O ECHO do sensor e de 5 V. Usar divisor resistivo (1k / 2k) antes do FPGA.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -21,7 +24,8 @@ entity ultrassom is
     TIMEOUT_US : positive := 30000;   -- eco maior que isso = invalido
     TOL_US     : positive := 290;     -- tolerancia (~5 cm)
     PERSIST    : positive := 3;       -- amostras seguidas para "alterado"
-    FALHA_N    : positive := 5        -- amostras invalidas seguidas para falha
+    FALHA_N    : positive := 5;       -- amostras invalidas seguidas para falha
+    FASE_US    : natural  := 0        -- atraso do 1o disparo (defasa os sensores)
   );
   port (
     clk      : in  std_logic;
@@ -84,7 +88,7 @@ begin
       echo_ant <= echo2;
 
       if rst = '1' then
-        t_us      <= 0;
+        t_us      <= (PERIODO_US - (FASE_US mod PERIODO_US)) mod PERIODO_US;
         larg      <= 0;
         amostra   <= 0;
         tem_amost <= '0';
