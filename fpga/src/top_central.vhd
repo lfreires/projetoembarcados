@@ -46,7 +46,7 @@ entity top_central is
     z2_reed    : in  std_logic;
     z2_trig    : out std_logic;
     z2_echo    : in  std_logic;
-    z3_reed     : in  std_logic;
+    z3_pir     : in  std_logic;
     z3_trig    : out std_logic;
     z3_echo    : in  std_logic;
     z4_ir      : in  std_logic;
@@ -124,7 +124,7 @@ begin
     port map (clk => clk, rst => rst,
               z1_pir => z1_pir, z1_echo => z1_echo, z1_trig => z1_trig,
               z2_reed => z2_reed, z2_echo => z2_echo, z2_trig => z2_trig,
-              z3_reed => z3_reed, z3_echo => z3_echo, z3_trig => z3_trig,
+              z3_pir => z3_pir, z3_echo => z3_echo, z3_trig => z3_trig,
               z4_ir => z4_ir, z4_echo => z4_echo, z4_trig => z4_trig,
               calibra => p_calib,
               sel_teste => sw_s(7 downto 4), forca_r => sw_s(8), forca_u => sw_s(9), inj_f => sw_s(10),

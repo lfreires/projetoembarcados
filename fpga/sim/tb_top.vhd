@@ -29,7 +29,7 @@ architecture sim of tb_top is
   signal dp  : std_logic;
   signal an  : std_logic_vector(3 downto 0);
 
-  signal z1_pir, z2_reed, z3_reed : std_logic := '0';
+  signal z1_pir, z2_reed, z3_pir : std_logic := '0';
   signal z4_ir : std_logic := '1';     -- FC-51 em repouso fica em '1'
   signal z1_trig, z2_trig, z3_trig, z4_trig : std_logic;
   signal z1_echo, z2_echo, z3_echo, z4_echo : std_logic := '0';
@@ -59,7 +59,7 @@ begin
               sw => sw, led => led, seg => seg, dp => dp, an => an,
               z1_pir => z1_pir, z1_trig => z1_trig, z1_echo => z1_echo,
               z2_reed => z2_reed, z2_trig => z2_trig, z2_echo => z2_echo,
-              z3_reed => z3_reed, z3_trig => z3_trig, z3_echo => z3_echo,
+              z3_pir => z3_pir, z3_trig => z3_trig, z3_echo => z3_echo,
               z4_ir => z4_ir, z4_trig => z4_trig, z4_echo => z4_echo,
               sirene => sirene, estrobo => estrobo, nevoa => nevoa, cerca => cerca,
               esp_rst => esp_rst, esp_hb => esp_hb, esp_d => esp_d, esp_sof => esp_sof,

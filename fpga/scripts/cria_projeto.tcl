@@ -96,7 +96,7 @@ create_bd_port -dir I z1_echo
 create_bd_port -dir I z2_reed
 create_bd_port -dir O z2_trig
 create_bd_port -dir I z2_echo
-create_bd_port -dir I z3_reed
+create_bd_port -dir I z3_pir
 create_bd_port -dir O z3_trig
 create_bd_port -dir I z3_echo
 create_bd_port -dir I z4_ir
@@ -230,7 +230,7 @@ liga sensores_0/z1_trig z1_trig
 liga z2_reed sensores_0/z2_reed
 liga z2_echo sensores_0/z2_echo
 liga sensores_0/z2_trig z2_trig
-liga z3_reed sensores_0/z3_reed
+liga z3_pir sensores_0/z3_pir
 liga z3_echo sensores_0/z3_echo
 liga sensores_0/z3_trig z3_trig
 liga z4_ir sensores_0/z4_ir

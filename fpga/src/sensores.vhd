@@ -8,7 +8,7 @@
 --   Zona   local na maquete   sensor A ("R")             sensor B ("U")
 --   Z1     ambiente 1         PIR                        ultrassonico 1 (janela)
 --   Z2     ambiente 2         reed da porta              ultrassonico 2 (janela)
---   Z3     ambiente 3         reed da janela             ultrassonico 3 (janela)
+--   Z3     ambiente 3         PIR                        ultrassonico 3 (janela)
 --   Z4     quintal            IR FC-51 (cercadinho)      ultrassonico 4
 --
 -- F de cada zona = ultrassonico da zona sem eco valido (FALHA_N medidas).
@@ -40,7 +40,7 @@ entity sensores is
     z2_reed   : in  std_logic;
     z2_echo   : in  std_logic;
     z2_trig   : out std_logic;
-    z3_reed   : in  std_logic;
+    z3_pir    : in  std_logic;
     z3_echo   : in  std_logic;
     z3_trig   : out std_logic;
     z4_ir     : in  std_logic;
@@ -95,10 +95,10 @@ begin
               trig => z2_trig, alterado => uq(1), falha => fq(1),
               dist_us => open);
 
-  -- ---------------- Zona 3: reed da janela + ultrassom 3 ----------------
+  -- ---------------- Zona 3: PIR + ultrassom 3 ----------------
   z3a : entity work.sinc_debounce
-    generic map (N_CICLOS => N_REED, ATIVO => REED_ATV)
-    port map (clk => clk, rst => rst, d => z3_reed, q => rq(2));
+    generic map (N_CICLOS => N_PIR, ATIVO => PIR_ATV)
+    port map (clk => clk, rst => rst, d => z3_pir, q => rq(2));
 
   z3b : entity work.ultrassom
     generic map (CLK_HZ => CLK_HZ, PERIODO_US => PERIODO_US, FASE_US => 2 * FASE)

@@ -35,7 +35,7 @@ Referência rápida para a montagem. A fonte oficial é `fpga/constr/basys3_cent
 | JA8 | K2 | z2_echo | entrada | Z2 ultrassom, divisor 1 kΩ / 2 kΩ |
 | JA9 | H2 | z3_trig | saída | Z3 ultrassom |
 | JA10 | G3 | z3_echo | entrada | Z3 ultrassom, divisor 1 kΩ / 2 kΩ |
-| JB1 | A14 | z3_reed | entrada | Z3 ambiente 3: reed da janela, pull-up interno |
+| JB1 | A14 | z3_pir | entrada | Z3 ambiente 3: PIR (saída 3,3 V), pull-down |
 | JB2 | A16 | z4_ir | entrada | Z4 quintal: IR FC-51 alimentado em 3,3 V, ativo em 0, pull-down |
 | JB3 | B15 | sirene | saída | LED de alarme (10 W / 5 W) no canal de potência 1: pisca ~2,4 Hz no disparo, ~1,2 Hz no pré-alarme |
 | JB4 | B16 | estrobo | saída | habilita o 555 |
