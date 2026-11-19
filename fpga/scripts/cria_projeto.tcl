@@ -174,6 +174,12 @@ cria_mod wdt_esp wdt_esp_0
 cria_mod gpio_esp gpio_esp_0
 cria_mod display display_0
 
+# o Vivado guarda em cache a interface dos modulos; se um .vhd mudou desde a
+# ultima vez, isto relê as portas do arquivo atual antes de ligar os fios
+foreach ip [get_ips -quiet central_bd_*] {
+    catch { update_module_reference $ip }
+}
+
 # ---------------------------------------------------------------- ligacoes
 
 # clock de 100 MHz da placa -> Clocking Wizard
