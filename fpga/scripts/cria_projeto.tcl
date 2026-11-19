@@ -350,6 +350,9 @@ validate_bd_design
 save_bd_design
 
 set bd [get_files central_bd.bd]
+# sintese global: um run so para o diagrama inteiro (muito mais rapido do que
+# um run fora de contexto para cada um dos ~40 IPs)
+set_property synth_checkpoint_mode None $bd
 generate_target all $bd
 # make_wrapper devolve o caminho do wrapper (.srcs no 2018.2, .gen nos novos)
 set wrapper [make_wrapper -files $bd -top]
