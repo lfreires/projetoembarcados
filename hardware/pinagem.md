@@ -27,10 +27,10 @@ Referência rápida para a montagem. A fonte oficial é `fpga/constr/basys3_cent
 
 | Pmod | Pino | Sinal | Direção | Observação |
 |---|---|---|---|---|
-| JA1 | J1 | z1_pir | entrada | Z1 ambiente 1: PIR (saída do HC-SR501 já é 3,3 V), pull-down |
+| JA1 | J1 | z1_reed | entrada | Z1 ambiente 1: reed da janela, pull-up interno |
 | JA2 | L2 | z1_trig | saída | Z1 ultrassom (HC-SR04 aceita 3,3 V no TRIG) |
 | JA3 | J2 | z1_echo | entrada | Z1 ultrassom, divisor 1 kΩ / 2 kΩ (5 V para 3,3 V) |
-| JA4 | G2 | z2_reed | entrada | Z2 ambiente 2: reed da porta, pull-up interno |
+| JA4 | G2 | z2_pir | entrada | Z2 ambiente 2: PIR (saída 3,3 V), pull-down |
 | JA7 | H1 | z2_trig | saída | Z2 ultrassom |
 | JA8 | K2 | z2_echo | entrada | Z2 ultrassom, divisor 1 kΩ / 2 kΩ |
 | JA9 | H2 | z3_trig | saída | Z3 ultrassom |

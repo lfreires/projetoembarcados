@@ -24,10 +24,10 @@ Uma central de alarme residencial com quatro zonas. A central fica em um FPGA (B
 
 | Zona | Local | Sensor A | Sensor B |
 |---|---|---|---|
-| Z1 | Ambiente 1 | PIR HC-SR501 | ultrassônico HC-SR04 |
-| Z2 | Ambiente 2 | reed na porta | ultrassônico HC-SR04 |
+| Z1 | Ambiente 1 | reed na janela | ultrassônico HC-SR04 |
+| Z2 | Ambiente 2 | PIR HC-SR501 | ultrassônico HC-SR04 |
 | Z3 | Ambiente 3 | PIR HC-SR501 | ultrassônico HC-SR04 |
-| Z4 | Quintal (cercadinho) | IR de obstáculo FC-51 | ultrassônico HC-SR04 |
+| Z4 | Quintal | IR de obstáculo FC-51 na cerca da frente | ultrassônico HC-SR04 na portinhola |
 
 ## Pastas
 

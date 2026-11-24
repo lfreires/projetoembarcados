@@ -40,10 +40,10 @@ entity top_central is
     dp         : out std_logic;
     an         : out std_logic_vector(3 downto 0);
     -- sensores
-    z1_pir    : in  std_logic;
+    z1_reed    : in  std_logic;
     z1_trig    : out std_logic;
     z1_echo    : in  std_logic;
-    z2_reed    : in  std_logic;
+    z2_pir    : in  std_logic;
     z2_trig    : out std_logic;
     z2_echo    : in  std_logic;
     z3_pir     : in  std_logic;
@@ -122,8 +122,8 @@ begin
   u_sens : entity work.sensores
     generic map (CLK_HZ => CLK_HZ)
     port map (clk => clk, rst => rst,
-              z1_pir => z1_pir, z1_echo => z1_echo, z1_trig => z1_trig,
-              z2_reed => z2_reed, z2_echo => z2_echo, z2_trig => z2_trig,
+              z1_reed => z1_reed, z1_echo => z1_echo, z1_trig => z1_trig,
+              z2_pir => z2_pir, z2_echo => z2_echo, z2_trig => z2_trig,
               z3_pir => z3_pir, z3_echo => z3_echo, z3_trig => z3_trig,
               z4_ir => z4_ir, z4_echo => z4_echo, z4_trig => z4_trig,
               calibra => p_calib,

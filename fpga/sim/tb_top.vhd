@@ -5,7 +5,7 @@
 --
 -- Cenarios:
 --   A. arme remoto pela ESP32 (ARM_REQ / CMD_ACK / CMD_OK)
---   B. zona 1: PIR + ultrassom confirmam dentro de Tcorr -> alarme normal
+--   B. zona 1: reed + ultrassom confirmam dentro de Tcorr -> alarme normal
 --   C. desarme remoto
 --   D. zona 2: so o ultrassom 2 -> alarme imediato e DEG depois de Tcorr
 --   E. ESP32 travada: FPGA reseta a ESP e a central continua em disparo;
@@ -29,7 +29,7 @@ architecture sim of tb_top is
   signal dp  : std_logic;
   signal an  : std_logic_vector(3 downto 0);
 
-  signal z1_pir, z2_reed, z3_pir : std_logic := '0';
+  signal z1_reed, z2_pir, z3_pir : std_logic := '0';
   signal z4_ir : std_logic := '1';     -- FC-51 em repouso fica em '1'
   signal z1_trig, z2_trig, z3_trig, z4_trig : std_logic;
   signal z1_echo, z2_echo, z3_echo, z4_echo : std_logic := '0';
@@ -57,8 +57,8 @@ begin
     generic map (CLK_HZ => 1000000, BIT_SEL => 4, BIT_PISCA => 12, BIT_RAPIDO => 11)
     port map (clk => clk, btnC => btnC, btnU => btnU, btnD => btnD, btnL => btnL, btnR => btnR,
               sw => sw, led => led, seg => seg, dp => dp, an => an,
-              z1_pir => z1_pir, z1_trig => z1_trig, z1_echo => z1_echo,
-              z2_reed => z2_reed, z2_trig => z2_trig, z2_echo => z2_echo,
+              z1_reed => z1_reed, z1_trig => z1_trig, z1_echo => z1_echo,
+              z2_pir => z2_pir, z2_trig => z2_trig, z2_echo => z2_echo,
               z3_pir => z3_pir, z3_trig => z3_trig, z3_echo => z3_echo,
               z4_ir => z4_ir, z4_trig => z4_trig, z4_echo => z4_echo,
               sirene => sirene, estrobo => estrobo, nevoa => nevoa, cerca => cerca,
@@ -174,10 +174,10 @@ begin
     comando(arm_req, '1', "A arme remoto");
     assert led(8) = '1' report "A: nao armou" severity error;
 
-    -- B. zona 1: PIR detecta e a distancia muda
-    z1_pir <= '1';
+    -- B. zona 1: janela abre (reed) e a distancia muda
+    z1_reed <= '1';
     larg1   <= 600 us;
-    wait for 80 ms;                     -- filtro do PIR = 50 ms
+    wait for 80 ms;                     -- filtro do reed = 20 ms
     assert estrobo = '1' and estrobo = '1' and cerca = '1' and nevoa = '1'
       report "B: saidas nao acionaram" severity error;
     assert led(0) = '1' and led(4) = '0' report "B: AL_Z1 = 1 e DEG_Z1 = 0" severity error;
@@ -196,7 +196,7 @@ begin
     -- C. desarme remoto
     comando(disarm_req, '1', "C desarme remoto");
     assert estrobo = '0' and led(8) = '0' report "C: nao desarmou" severity error;
-    z1_pir <= '0';
+    z1_reed <= '0';
     larg1   <= 1200 us;
     wait for 400 ms;
 

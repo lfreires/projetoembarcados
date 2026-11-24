@@ -64,16 +64,16 @@ set_property -dict { PACKAGE_PIN T17 IOSTANDARD LVCMOS33 } [get_ports btnR]
 set_property -dict { PACKAGE_PIN U17 IOSTANDARD LVCMOS33 } [get_ports btnD]
 
 ## ---------------- Pmod JA : zonas 1, 2 e 3 ----------------
-## Z1 ambiente 1: PIR + ultrassom | Z2 ambiente 2: reed porta + ultrassom
+## Z1 ambiente 1: reed janela + ultrassom | Z2 ambiente 2: PIR + ultrassom
 ## Z3 ambiente 3: PIR + ultrassom | Z4 quintal: IR FC-51 + ultrassom
-## Reed: contato para o GND, pull-up interno (porta aberta = 1)
-## JA1  Z1 PIR            JA2  Z1 TRIG    JA3  Z1 ECHO (divisor 5V->3V3)
-## JA4  Z2 reed (porta)   JA7  Z2 TRIG    JA8  Z2 ECHO (divisor 5V->3V3)
+## Reed: contato para o GND, pull-up interno (janela aberta = 1); PIR com pull-down
+## JA1  Z1 reed (janela)  JA2  Z1 TRIG    JA3  Z1 ECHO (divisor 5V->3V3)
+## JA4  Z2 PIR            JA7  Z2 TRIG    JA8  Z2 ECHO (divisor 5V->3V3)
 ##                         JA9  Z3 TRIG    JA10 Z3 ECHO (divisor 5V->3V3)
-set_property -dict { PACKAGE_PIN J1 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z1_pir]
+set_property -dict { PACKAGE_PIN J1 IOSTANDARD LVCMOS33 PULLUP true }   [get_ports z1_reed]
 set_property -dict { PACKAGE_PIN L2 IOSTANDARD LVCMOS33 }               [get_ports z1_trig]
 set_property -dict { PACKAGE_PIN J2 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z1_echo]
-set_property -dict { PACKAGE_PIN G2 IOSTANDARD LVCMOS33 PULLUP true }   [get_ports z2_reed]
+set_property -dict { PACKAGE_PIN G2 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z2_pir]
 set_property -dict { PACKAGE_PIN H1 IOSTANDARD LVCMOS33 }               [get_ports z2_trig]
 set_property -dict { PACKAGE_PIN K2 IOSTANDARD LVCMOS33 PULLDOWN true } [get_ports z2_echo]
 set_property -dict { PACKAGE_PIN H2 IOSTANDARD LVCMOS33 }               [get_ports z3_trig]

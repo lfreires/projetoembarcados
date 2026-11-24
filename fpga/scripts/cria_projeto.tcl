@@ -90,10 +90,10 @@ create_bd_port -dir O -from 15 -to 0 led
 create_bd_port -dir O -from 6 -to 0 seg
 create_bd_port -dir O dp
 create_bd_port -dir O -from 3 -to 0 an
-create_bd_port -dir I z1_pir
+create_bd_port -dir I z1_reed
 create_bd_port -dir O z1_trig
 create_bd_port -dir I z1_echo
-create_bd_port -dir I z2_reed
+create_bd_port -dir I z2_pir
 create_bd_port -dir O z2_trig
 create_bd_port -dir I z2_echo
 create_bd_port -dir I z3_pir
@@ -230,10 +230,10 @@ liga botoes_0/p_rec mef_zona_1/rec_deg mef_zona_2/rec_deg mef_zona_3/rec_deg mef
 liga botoes_0/p_calib sensores_0/calibra
 
 # pinos dos sensores
-liga z1_pir sensores_0/z1_pir
+liga z1_reed sensores_0/z1_reed
 liga z1_echo sensores_0/z1_echo
 liga sensores_0/z1_trig z1_trig
-liga z2_reed sensores_0/z2_reed
+liga z2_pir sensores_0/z2_pir
 liga z2_echo sensores_0/z2_echo
 liga sensores_0/z2_trig z2_trig
 liga z3_pir sensores_0/z3_pir

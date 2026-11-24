@@ -6,10 +6,10 @@
 -- (FC-51). Cada zona tem um ultrassonico e um sensor de outro tipo:
 --
 --   Zona   local na maquete   sensor A ("R")             sensor B ("U")
---   Z1     ambiente 1         PIR                        ultrassonico 1 (janela)
---   Z2     ambiente 2         reed da porta              ultrassonico 2 (janela)
---   Z3     ambiente 3         PIR                        ultrassonico 3 (janela)
---   Z4     quintal            IR FC-51 (cercadinho)      ultrassonico 4
+--   Z1     ambiente 1         reed da janela             ultrassonico 1 (outra janela)
+--   Z2     ambiente 2         PIR                        ultrassonico 2 (mesma janela)
+--   Z3     ambiente 3         PIR                        ultrassonico 3 (mesma janela)
+--   Z4     quintal            IR FC-51 (cerca da frente) ultrassonico 4 (portinhola)
 --
 -- F de cada zona = ultrassonico da zona sem eco valido (FALHA_N medidas).
 -- Os 4 ultrassonicos disparam defasados de 1/4 de periodo (15 ms) para que o
@@ -34,10 +34,10 @@ entity sensores is
     clk       : in  std_logic;
     rst       : in  std_logic;
     -- pinos dos sensores
-    z1_pir    : in  std_logic;
+    z1_reed   : in  std_logic;
     z1_echo   : in  std_logic;
     z1_trig   : out std_logic;
-    z2_reed   : in  std_logic;
+    z2_pir    : in  std_logic;
     z2_echo   : in  std_logic;
     z2_trig   : out std_logic;
     z3_pir    : in  std_logic;
@@ -73,10 +73,10 @@ architecture rtl of sensores is
   signal ro, uo, fo : std_logic_vector(3 downto 0);   -- depois do teste
 begin
 
-  -- ---------------- Zona 1: PIR + ultrassom 1 ----------------
+  -- ---------------- Zona 1: reed da janela + ultrassom 1 ----------------
   z1a : entity work.sinc_debounce
-    generic map (N_CICLOS => N_PIR, ATIVO => PIR_ATV)
-    port map (clk => clk, rst => rst, d => z1_pir, q => rq(0));
+    generic map (N_CICLOS => N_REED, ATIVO => REED_ATV)
+    port map (clk => clk, rst => rst, d => z1_reed, q => rq(0));
 
   z1b : entity work.ultrassom
     generic map (CLK_HZ => CLK_HZ, PERIODO_US => PERIODO_US, FASE_US => 0)
@@ -84,10 +84,10 @@ begin
               trig => z1_trig, alterado => uq(0), falha => fq(0),
               dist_us => dist1_us);
 
-  -- ---------------- Zona 2: reed da porta + ultrassom 2 ----------------
+  -- ---------------- Zona 2: PIR + ultrassom 2 ----------------
   z2a : entity work.sinc_debounce
-    generic map (N_CICLOS => N_REED, ATIVO => REED_ATV)
-    port map (clk => clk, rst => rst, d => z2_reed, q => rq(1));
+    generic map (N_CICLOS => N_PIR, ATIVO => PIR_ATV)
+    port map (clk => clk, rst => rst, d => z2_pir, q => rq(1));
 
   z2b : entity work.ultrassom
     generic map (CLK_HZ => CLK_HZ, PERIODO_US => PERIODO_US, FASE_US => FASE)

@@ -33,15 +33,15 @@ OLLAMA_URL = _env("OLLAMA_URL")
 OLLAMA_MODELO = _env("OLLAMA_MODELO", "llama3.2")
 
 ZONAS = {
-    1: _env("ZONA1", "Ambiente 1 (PIR + ultrassom)"),
-    2: _env("ZONA2", "Ambiente 2 (porta + ultrassom)"),
+    1: _env("ZONA1", "Ambiente 1 (janela + ultrassom)"),
+    2: _env("ZONA2", "Ambiente 2 (PIR + ultrassom)"),
     3: _env("ZONA3", "Ambiente 3 (PIR + ultrassom)"),
-    4: _env("ZONA4", "Quintal (IR + ultrassom)"),
+    4: _env("ZONA4", "Quintal (cerca IR + portinhola)"),
 }
 # nome dos dois sensores de cada zona (sensor A = "R", sensor B = "U" no FPGA)
 SENSORES = {
-    1: ("PIR", "ultrassonico"),
-    2: ("reed da porta", "ultrassonico"),
+    1: ("reed da janela", "ultrassonico"),
+    2: ("PIR", "ultrassonico"),
     3: ("PIR", "ultrassonico"),
     4: ("IR de obstaculo", "ultrassonico"),
 }
