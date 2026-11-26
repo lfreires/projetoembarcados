@@ -13,8 +13,8 @@
 #define PIN_ACK       27    // JC9  (saida)
 #define PIN_MODO_DEG  14    // JC10
 // comandos ESP -> FPGA (Pmod JXADC)
-#define PIN_ARM_REQ   16    // JXA1 (saida)
-#define PIN_DIS_REQ   17    // JXA2 (saida)
+#define PIN_ARM_REQ   22    // JXA1 (saida)
+#define PIN_DIS_REQ   23    // JXA2 (saida)
 #define PIN_CMD_ACK   18    // JXA3
 #define PIN_CMD_OK    19    // JXA4
 // supervisao (Pmod JB)

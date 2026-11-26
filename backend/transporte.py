@@ -58,6 +58,11 @@ class AzureTransporte:
         try:
             r = requests.post(url, json=corpo, timeout=config.TIMEOUT_COMANDO_S + 10,
                               headers={"Authorization": sas_token(self.host, self.chave, self.politica)})
+            # hubs novos exigem o endereco <hub>.service.azure-devices.net para operacoes de servico
+            if r.status_code == 400 and "service hostname" in r.text and ".service." not in self.host:
+                self.host = self.host.replace(".azure-devices.net", ".service.azure-devices.net")
+                print("[azure] usando o endereco de servico", self.host)
+                return self.comando(payload)
         except requests.RequestException as e:
             return "erro", f"sem acesso ao IoT Hub: {e}"
         if r.status_code == 200:

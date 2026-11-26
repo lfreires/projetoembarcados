@@ -66,8 +66,8 @@ Os pinos 5 e 11 de cada Pmod são GND e os pinos 6 e 12 são 3,3 V. O arquivo co
 | GPIO26 | JC8 | REQ |
 | GPIO27 | JC9 | ACK |
 | GPIO14 | JC10 | MODO_DEGRADADO |
-| GPIO16 | JXA1 | ARM_REQ |
-| GPIO17 | JXA2 | DISARM_REQ |
+| GPIO22 | JXA1 | ARM_REQ |
+| GPIO23 | JXA2 | DISARM_REQ |
 | GPIO18 | JXA3 | CMD_ACK |
 | GPIO19 | JXA4 | CMD_OK |
 | GPIO21 | JB10 | HEARTBEAT |
